@@ -5,7 +5,6 @@ const getState = ({ getStore, getActions, setStore }) => {
         darkMode: false
       },
       actions: {
-        // Cargar todos los contactos desde la agenda
         loadContacts: async () => {
           try {
             const resp = await fetch("https://playground.4geeks.com/apis/fake/contact/agenda/my_super_agenda");
@@ -22,7 +21,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         },
   
-        // Agregar un nuevo contacto
         addContact: async (newContact) => {
           try {
             await fetch("https://playground.4geeks.com/apis/fake/contact/", {
@@ -39,7 +37,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         },
   
-        // Editar un contacto existente
         editContact: async (id, updatedContact) => {
           try {
             await fetch(`https://playground.4geeks.com/apis/fake/contact/${id}`, {
@@ -56,7 +53,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         },
   
-        // Eliminar un contacto
         deleteContact: async (id) => {
           try {
             await fetch(`https://playground.4geeks.com/apis/fake/contact/${id}`, {
@@ -68,7 +64,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           }
         },
   
-        // Activar o desactivar modo oscuro
         toggleDarkMode: () => {
           const store = getStore();
           setStore({ darkMode: !store.darkMode });

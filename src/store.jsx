@@ -1,10 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import getState from "./flux.jsx";
 
-// Crear el contexto global
 export const Context = createContext(null);
 
-// Componente que envuelve toda la app con el contexto
 export const ContextWrapper = ({ children }) => {
   const [state, setState] = useState(() =>
     getState({
@@ -18,7 +16,6 @@ export const ContextWrapper = ({ children }) => {
     })
   );
 
-  // Cargar contactos al montar (si existe loadContacts)
   useEffect(() => {
     if (state.actions && typeof state.actions.loadContacts === "function") {
       state.actions.loadContacts();
@@ -32,5 +29,4 @@ export const ContextWrapper = ({ children }) => {
   );
 };
 
-// Hook personalizado para usar el contexto en cualquier componente
 export const useAppContext = () => useContext(Context);
