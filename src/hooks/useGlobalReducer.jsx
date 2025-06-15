@@ -1,24 +1,115 @@
-// Import necessary hooks and functions from React.
-import { useContext, useReducer, createContext } from "react";
-import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
+import React, { useReducer, useContext, useEffect } from "react";
 
-// Create a context to hold the global state of the application
-// We will call this global state the "store" to avoid confusion while using local states
-const StoreContext = createContext()
+// Crea el contexto global
+const GlobalContext = React.createContext();
 
-// Define a provider component that encapsulates the store and warps it in a context provider to 
-// broadcast the information throught all the app pages and components.
-export function StoreProvider({ children }) {
-    // Initialize reducer with the initial state.
-    const [store, dispatch] = useReducer(storeReducer, initialStore())
-    // Provide the store and dispatch method to all child components.
-    return <StoreContext.Provider value={{ store, dispatch }}>
-        {children}
-    </StoreContext.Provider>
+// Estado inicial
+const initialState = {
+  contacts: []
+};
+
+// Reducer
+function reducer(state, action) {
+  switch (action.type) {
+    case "SET_CONTACTS":
+      return { ...state, contacts: action.payload };
+    case "ADD_CONTACT":
+      return { ...state, contacts: [...state.contacts, action.payload] };
+    case "DELETE_CONTACT":
+      return {
+        ...state,
+        contacts: state.contacts.filter(contact => contact.id !== action.payload)
+      };
+    case "UPDATE_CONTACT":
+      return {
+        ...state,
+        contacts: state.contacts.map(contact =>
+          contact.id === action.payload.id ? action.payload : contact
+        )
+      };
+    default:
+      return state;
+  }
 }
 
-// Custom hook to access the global state and dispatch function.
-export default function useGlobalReducer() {
-    const { dispatch, store } = useContext(StoreContext)
-    return { dispatch, store };
-}
+// Proveedor global
+export const StoreProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const API_URL = "http://localhost:3001/contacts";
+
+  // Obtener contactos
+  const getContacts = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      dispatch({ type: "SET_CONTACTS", payload: data });
+    } catch (err) {
+      console.error("❌ Error fetching contacts", err);
+    }
+  };
+
+  // Añadir contacto
+  const addContact = async (contact) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contact)
+      });
+      const data = await res.json();
+      dispatch({ type: "ADD_CONTACT", payload: data });
+    } catch (err) {
+      console.error("❌ Error creating contact", err);
+    }
+  };
+
+  // Borrar contacto
+  const deleteContact = async (id) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      dispatch({ type: "DELETE_CONTACT", payload: id });
+    } catch (err) {
+      console.error("❌ Error deleting contact", err);
+    }
+  };
+
+  // Actualizar contacto
+  const updateContact = async (id, contact) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contact)
+      });
+      const data = await res.json();
+      dispatch({ type: "UPDATE_CONTACT", payload: data });
+    } catch (err) {
+      console.error("❌ Error updating contact", err);
+    }
+  };
+
+  // Carga inicial
+  useEffect(() => {
+    getContacts();
+  }, []);
+
+  return (
+    <GlobalContext.Provider
+      value={{
+        contacts: state.contacts,
+        actions: {
+          getContacts,
+          addContact,
+          deleteContact,
+          updateContact
+        }
+      }}
+    >
+      {children}
+    </GlobalContext.Provider>
+  );
+};
+
+// Hook para usar el contexto
+export const useGlobalContext = () => useContext(GlobalContext);

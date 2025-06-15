@@ -1,0 +1,80 @@
+{
+  "info": {
+    "name": "4Geeks Contacts API",
+    "_postman_id": "4geeks-contact-api-sample",
+    "description": "Colección para probar CRUD de contactos en 4Geeks API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Contact (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Ada Lovelace\",\n  \"email\": \"ada@lovelace.com\",\n  \"agenda_slug\": \"my_agenda\",\n  \"address\": \"123 Logic Street\",\n  \"phone\": \"555-1234\"\n}"
+        },
+        "url": {
+          "raw": "https://playground.4geeks.com/apis/contact/",
+          "protocol": "https",
+          "host": ["playground", "4geeks", "com"],
+          "path": ["apis", "contact"]
+        }
+      }
+    },
+    {
+      "name": "Get All Contacts (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://playground.4geeks.com/apis/agenda/my_agenda",
+          "protocol": "https",
+          "host": ["playground", "4geeks", "com"],
+          "path": ["apis", "agenda", "my_agenda"]
+        }
+      }
+    },
+    {
+      "name": "Update Contact (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Ada Lovelace (Updated)\",\n  \"email\": \"ada@updated.com\",\n  \"agenda_slug\": \"my_agenda\",\n  \"address\": \"Updated Blvd\",\n  \"phone\": \"555-9999\"\n}"
+        },
+        "url": {
+          "raw": "https://playground.4geeks.com/apis/contact/REPLACE_ID",
+          "protocol": "https",
+          "host": ["playground", "4geeks", "com"],
+          "path": ["apis", "contact", "REPLACE_ID"]
+        }
+      }
+    },
+    {
+      "name": "Delete Contact (DELETE)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://playground.4geeks.com/apis/contact/REPLACE_ID",
+          "protocol": "https",
+          "host": ["playground", "4geeks", "com"],
+          "path": ["apis", "contact", "REPLACE_ID"]
+        }
+      }
+    }
+  ]
+}

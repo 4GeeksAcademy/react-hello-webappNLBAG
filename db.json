@@ -1,0 +1,11 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "full_name": "Ada Lovelace",
+      "email": "ada@lovelace.com",
+      "address": "Logic Street 42",
+      "phone": "555-1234"
+    }
+  ]
+}
