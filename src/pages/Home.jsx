@@ -1,3 +1,5 @@
+// src/pages/Home.jsx
+import React from "react";                      // ← Asegúrate de añadir esta línea
 import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
@@ -11,7 +13,7 @@ export const Home = () => {
         Manage, add, and edit your contacts easily using the buttons below.
       </p>
 
-      <div>
+      <div className="d-flex justify-content-center">
         <button
           className="btn btn-primary me-3"
           onClick={() => navigate("/contacts")}

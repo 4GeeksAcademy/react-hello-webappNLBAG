@@ -5,9 +5,12 @@ import { useGlobalContext } from "../hooks/useGlobalReducer";
 export const Contacts = () => {
   const { contacts, actions } = useGlobalContext();
 
+  // Solo cargar si no hay contactos
   useEffect(() => {
-    actions.getContacts();
-  }, [actions]);
+    if (!Array.isArray(contacts) || contacts.length === 0) {
+      actions.getContacts();
+    }
+  }, []);
 
   if (!Array.isArray(contacts)) {
     return <div className="text-center mt-5 text-danger">Error al cargar contactos.</div>;

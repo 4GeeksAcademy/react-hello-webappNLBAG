@@ -1,4 +1,11 @@
-import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
+// src/routes.jsx
+import React from "react";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route
+} from "react-router-dom";
+
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Contacts } from "./pages/Contacts";

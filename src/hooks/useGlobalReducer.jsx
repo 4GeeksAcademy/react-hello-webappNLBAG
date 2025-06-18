@@ -1,115 +1,97 @@
-import React, { useReducer, useContext, useEffect } from "react";
+// src/hooks/useGlobalReducer.jsx
+import React, { createContext, useContext, useReducer, useEffect } from "react";
 
-// Crea el contexto global
-const GlobalContext = React.createContext();
+// Creamos contexto global
+const GlobalContext = createContext();
 
 // Estado inicial
-const initialState = {
-  contacts: []
-};
+const initialState = { contacts: [] };
 
-// Reducer
+// Reducer para manejar estado de contacts
 function reducer(state, action) {
   switch (action.type) {
     case "SET_CONTACTS":
       return { ...state, contacts: action.payload };
     case "ADD_CONTACT":
       return { ...state, contacts: [...state.contacts, action.payload] };
-    case "DELETE_CONTACT":
-      return {
-        ...state,
-        contacts: state.contacts.filter(contact => contact.id !== action.payload)
-      };
     case "UPDATE_CONTACT":
       return {
         ...state,
-        contacts: state.contacts.map(contact =>
-          contact.id === action.payload.id ? action.payload : contact
+        contacts: state.contacts.map(c =>
+          c.id === action.payload.id ? action.payload : c
         )
+      };
+    case "DELETE_CONTACT":
+      return {
+        ...state,
+        contacts: state.contacts.filter(c => c.id !== action.payload)
       };
     default:
       return state;
   }
 }
 
-// Proveedor global
+// Proveedor de estado global usando localStorage
 export const StoreProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const API_URL = "http://localhost:3001/contacts";
-
-  // Obtener contactos
-  const getContacts = async () => {
+  // Carga inicial desde localStorage
+  const loadContacts = () => {
     try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
+      const stored = localStorage.getItem("contacts");
+      const data = stored ? JSON.parse(stored) : [];
       dispatch({ type: "SET_CONTACTS", payload: data });
     } catch (err) {
-      console.error("❌ Error fetching contacts", err);
+      console.error("❌ Error loading contacts", err);
     }
   };
 
-  // Añadir contacto
-  const addContact = async (contact) => {
+  // Guarda en localStorage
+  const persist = contacts => {
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contact)
-      });
-      const data = await res.json();
-      dispatch({ type: "ADD_CONTACT", payload: data });
+      localStorage.setItem("contacts", JSON.stringify(contacts));
     } catch (err) {
-      console.error("❌ Error creating contact", err);
+      console.error("❌ Error saving contacts", err);
     }
   };
 
-  // Borrar contacto
-  const deleteContact = async (id) => {
-    try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  // Acciones CRUD sin backend
+  const actions = {
+    getContacts: () => loadContacts(),
+
+    addContact: contact => {
+      const newContact = { ...contact, id: Date.now().toString() };
+      const updated = [...state.contacts, newContact];
+      dispatch({ type: "ADD_CONTACT", payload: newContact });
+      persist(updated);
+    },
+
+    updateContact: (id, data) => {
+      const updated = state.contacts.map(c =>
+        c.id === id ? { ...c, ...data } : c
+      );
+      dispatch({ type: "UPDATE_CONTACT", payload: { id, ...data } });
+      persist(updated);
+    },
+
+    deleteContact: id => {
+      const updated = state.contacts.filter(c => c.id !== id);
       dispatch({ type: "DELETE_CONTACT", payload: id });
-    } catch (err) {
-      console.error("❌ Error deleting contact", err);
+      persist(updated);
     }
   };
 
-  // Actualizar contacto
-  const updateContact = async (id, contact) => {
-    try {
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contact)
-      });
-      const data = await res.json();
-      dispatch({ type: "UPDATE_CONTACT", payload: data });
-    } catch (err) {
-      console.error("❌ Error updating contact", err);
-    }
-  };
-
-  // Carga inicial
+  // useEffect para cargar datos al inicio
   useEffect(() => {
-    getContacts();
+    loadContacts();
   }, []);
 
   return (
-    <GlobalContext.Provider
-      value={{
-        contacts: state.contacts,
-        actions: {
-          getContacts,
-          addContact,
-          deleteContact,
-          updateContact
-        }
-      }}
-    >
+    <GlobalContext.Provider value={{ contacts: state.contacts, actions }}>
       {children}
     </GlobalContext.Provider>
   );
 };
 
-// Hook para usar el contexto
+// Hook para usar contexto
 export const useGlobalContext = () => useContext(GlobalContext);
